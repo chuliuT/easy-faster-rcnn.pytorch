@@ -12,6 +12,7 @@ class ResNet50(backbone.base.Base):
         super().__init__(pretrained)
 
     def features(self) -> Tuple[nn.Module, nn.Module, int, int]:
+        # 这里调用的是Resnet50
         resnet50 = torchvision.models.resnet50(pretrained=self._pretrained)
 
         # list(resnet50.children()) consists of following modules
@@ -23,10 +24,10 @@ class ResNet50(backbone.base.Base):
         #   [8] = AvgPool2d, [9] = Linear
         children = list(resnet50.children())
         features = children[:-3]
-        num_features_out = 1024
+        num_features_out = 1024# 此时 featuremap 的通道数为1024
 
         hidden = children[-3]
-        num_hidden_out = 2048
+        num_hidden_out = 2048# hidden channel为2048
 
         for parameters in [feature.parameters() for i, feature in enumerate(features) if i <= 4]:
             for parameter in parameters:
