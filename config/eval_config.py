@@ -5,8 +5,8 @@ from config.config import Config
 
 class EvalConfig(Config):
 
-    RPN_PRE_NMS_TOP_N: int = 6000
-    RPN_POST_NMS_TOP_N: int = 300
+    RPN_PRE_NMS_TOP_N: int = 6000  # 推理时候   anchor挑选 6000
+    RPN_POST_NMS_TOP_N: int = 300  # NMS的为 300 个 加快推理的速度
 
     @classmethod
     def setup(cls, image_min_side: float = None, image_max_side: float = None,

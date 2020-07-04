@@ -3,27 +3,27 @@ from typing import List, Tuple
 
 from config.config import Config
 
-
+#训练配置参数
 class TrainConfig(Config):
 
-    RPN_PRE_NMS_TOP_N: int = 12000
-    RPN_POST_NMS_TOP_N: int = 2000
+    RPN_PRE_NMS_TOP_N: int = 12000  #RPN 从20000+ anchor中预先挑选12000个 anchor
+    RPN_POST_NMS_TOP_N: int = 2000  # NMS后取的2000个
 
-    ANCHOR_SMOOTH_L1_LOSS_BETA: float = 1.0
-    PROPOSAL_SMOOTH_L1_LOSS_BETA: float = 1.0
+    ANCHOR_SMOOTH_L1_LOSS_BETA: float = 1.0  # RPN计算 bbox 回归的 smooth L1 的参数
+    PROPOSAL_SMOOTH_L1_LOSS_BETA: float = 1.0 # RCNN计算 bbox 回归的 smooth L1 的参数
 
-    BATCH_SIZE: int = 1
-    LEARNING_RATE: float = 0.001
-    MOMENTUM: float = 0.9
-    WEIGHT_DECAY: float = 0.0005
-    STEP_LR_SIZES: List[int] = [50000, 70000]
-    STEP_LR_GAMMA: float = 0.1
-    WARM_UP_FACTOR: float = 0.3333
-    WARM_UP_NUM_ITERS: int = 500
+    BATCH_SIZE: int = 1  # batch size的大小
+    LEARNING_RATE: float = 0.001 # 学习率 0.001
+    MOMENTUM: float = 0.9 #动量因子  0.9  加速SGD收敛用
+    WEIGHT_DECAY: float = 0.0005 #正则化项
+    STEP_LR_SIZES: List[int] = [50000, 70000] # 学习率在 50000 70000 时衰减一次
+    STEP_LR_GAMMA: float = 0.1 #
+    WARM_UP_FACTOR: float = 0.3333 #学习率 预热的因子  一般来说开头的训练不是很稳定，所以需要warm up
+    WARM_UP_NUM_ITERS: int = 500# 预热的iter 次数
 
-    NUM_STEPS_TO_DISPLAY: int = 20
-    NUM_STEPS_TO_SNAPSHOT: int = 10000
-    NUM_STEPS_TO_FINISH: int = 90000
+    NUM_STEPS_TO_DISPLAY: int = 20 # 每20 步 显示相关的信息
+    NUM_STEPS_TO_SNAPSHOT: int = 10000 #每10000 保存一下模型
+    NUM_STEPS_TO_FINISH: int = 90000 # 90000终止训练
 
     @classmethod
     def setup(cls, image_min_side: float = None, image_max_side: float = None,
