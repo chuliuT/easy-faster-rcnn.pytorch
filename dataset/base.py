@@ -92,20 +92,20 @@ class Base(torch.utils.data.dataset.Dataset):
     @staticmethod
     def padding_collate_fn(batch: List[Tuple[str, Tensor, Tensor, Tensor, Tensor]]) -> Tuple[List[str], Tensor, Tensor, Tensor, Tensor]:
         image_id_batch, image_batch, scale_batch, bboxes_batch, labels_batch = zip(*batch)
-
+        #找到batch里面最大的 width height bboxes长度 和labels长度
         max_image_width = max([it.shape[2] for it in image_batch])
         max_image_height = max([it.shape[1] for it in image_batch])
         max_bboxes_length = max([len(it) for it in bboxes_batch])
         max_labels_length = max([len(it) for it in labels_batch])
-
+        #给这些图像做padding
         padded_image_batch = []
         padded_bboxes_batch = []
         padded_labels_batch = []
-
+        #padding就是用batch里最大的width 和 height来计算 需要填充的距离 
         for image in image_batch:
             padded_image = F.pad(input=image, pad=(0, max_image_width - image.shape[2], 0, max_image_height - image.shape[1]))  # pad has format (left, right, top, bottom)
             padded_image_batch.append(padded_image)
-
+        #
         for bboxes in bboxes_batch:
             padded_bboxes = torch.cat([bboxes, torch.zeros(max_bboxes_length - len(bboxes), 4).to(bboxes)])
             padded_bboxes_batch.append(padded_bboxes)
@@ -115,30 +115,31 @@ class Base(torch.utils.data.dataset.Dataset):
             padded_labels_batch.append(padded_labels)
 
         image_id_batch = list(image_id_batch)
+        #堆叠起来
         padded_image_batch = torch.stack(padded_image_batch, dim=0)
         scale_batch = torch.stack(scale_batch, dim=0)
         padded_bboxes_batch = torch.stack(padded_bboxes_batch, dim=0)
         padded_labels_batch = torch.stack(padded_labels_batch, dim=0)
 
         return image_id_batch, padded_image_batch, scale_batch, padded_bboxes_batch, padded_labels_batch
-
+    #最近比例的随机采样
     class NearestRatioRandomSampler(torch.utils.data.sampler.Sampler):
 
         def __init__(self, image_ratios: List[float], num_neighbors: int):
             super().__init__(data_source=None)
-            self._image_ratios = image_ratios
-            self._num_neighbors = num_neighbors
+            self._image_ratios = image_ratios#比例
+            self._num_neighbors = num_neighbors#邻近的个数
 
         def __len__(self) -> int:
-            return len(self._image_ratios)
+            return len(self._image_ratios)#返回长度
 
         def __iter__(self) -> Iterator[int]:
-            image_ratios = torch.tensor(self._image_ratios)
+            image_ratios = torch.tensor(self._image_ratios)#变成tensor
             tall_indices = (image_ratios < 1).nonzero().view(-1)
             fat_indices = (image_ratios >= 1).nonzero().view(-1)
 
-            tall_indices_length = len(tall_indices)
-            fat_indices_length = len(fat_indices)
+            tall_indices_length = len(tall_indices)#个数
+            fat_indices_length = len(fat_indices)#个数
 
             tall_indices = tall_indices[torch.randperm(tall_indices_length)]
             fat_indices = fat_indices[torch.randperm(fat_indices_length)]
